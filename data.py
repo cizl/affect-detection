@@ -1,11 +1,40 @@
 import os
+import sys
 import argparse
 import pickle
+import bpdb
 
 import numpy as np
 from keras.preprocessing.text import Tokenizer
 from tqdm import tqdm, trange
 #from keras.preprocessing.text import pad_sequences
+
+
+def get_data(data_file):
+  keys = []
+  tweets = []
+  labels = []
+  with open(data_file, 'r') as fin:
+    next(fin)
+    for line in fin:
+      # TODO: check if fields contains \t
+      fields = line.strip().split('\t')
+      key = fields[0]
+      tweet = fields[1]
+      label = fields[-1]
+
+      if 'test' not in data_file:
+        if '-reg-' in data_file:
+          label = float(label)
+        elif '-oc-' in data_file:
+          label = int(label.split(':')[0])
+        elif '-c-' in data_file:
+          label = [int(x) for x in fields[2:]]
+
+      tweets.append(tweet)
+      labels.append(label)
+
+  return tweets, labels
 
 
 def prepare_word_index(data_dir):
@@ -78,6 +107,11 @@ if __name__ == '__main__':
 
   args = vars(parser.parse_args())
 
+  
+  x, y= get_data(args['data_dir'])
+  print(x[-1], y[-1])
+
+  sys.exit(1)
   word_index = prepare_word_index(args['data_dir'])
   emb_index = prepare_embedding_index(args['embedding_file'])
   emb_matrix = prepare_embedding_matrix(word_index, emb_index)
