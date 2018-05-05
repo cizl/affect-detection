@@ -25,7 +25,7 @@ mkdir data && cd data
 
 # EI-reg (Emotion Intensity - regression)
 # English
-wget 'rttp://www.saifmohammad.com/WebDocs/AIT-2018/AIT2018-DATA/EI-reg/English/EI-reg-En-train.zip'
+wget 'http://www.saifmohammad.com/WebDocs/AIT-2018/AIT2018-DATA/EI-reg/English/EI-reg-En-train.zip'
 wget 'http://saifmohammad.com/WebDocs/AIT-2018/AIT2018-DATA/EI-reg/English/2018-EI-reg-En-dev.zip'
 wget 'http://saifmohammad.com/WebDocs/AIT-2018/AIT2018-DATA/AIT2018-TEST-DATA/semeval2018englishtestfiles/2018-EI-reg-En-test.zip'
 # Arabic
