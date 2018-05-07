@@ -5,8 +5,8 @@ import pickle
 import bpdb
 
 import numpy as np
-from keras.preprocessing.text import Tokenizer
-from keras.utils.np_utils import to_categorical
+#from keras.preprocessing.text import Tokenizer
+#from keras.utils.np_utils import to_categorical
 from tqdm import tqdm, trange
 #from keras.preprocessing.text import pad_sequences
 
@@ -35,8 +35,8 @@ def get_data(data_file):
       tweets.append(tweet)
       labels.append(label)
 
-  if '-oc' in data_file:
-    labels = to_categorical(labels)
+#  if '-oc' in data_file:
+#    labels = to_categorical(labels)
 
   return np.array(tweets), np.array(labels)
 
