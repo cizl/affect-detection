@@ -16,15 +16,16 @@ from metrics import PearsonCallback
 
 architectures = [
   [Conv1D, Dropout],
-  [Conv1D, Dropout, Conv1D, Dropout]
+#  [Conv1D, Dropout, Conv1D, Dropout]
 ]
 
 param_grid = {
   Conv1D: [[10, 50, 100, 200, 400],
-           [1, 2, 3, 4, 5],
+           [1, 2, 3, 5],
 #           ['relu'],
            ],
-  Dropout: [[0, 0.2, 0.5, 0.8]],
+#  Dropout: [[0, 0.2, 0.5, 0.8]],
+  Dropout: [[0, 0.5, 0.8]],
 }
 
 def get_model(model_dir, corpus, embedding_matrix):

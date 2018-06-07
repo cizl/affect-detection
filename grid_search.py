@@ -6,6 +6,7 @@ import pickle
 
 import bpdb
 import numpy as np
+import keras.backend as K
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
 from keras.utils.np_utils import to_categorical
@@ -15,6 +16,7 @@ from keras.layers import Conv1D, Dense, Flatten, LSTM, Bidirectional
 from keras.layers import Dropout, BatchNormalization, GlobalMaxPool1D
 from keras.callbacks import EarlyStopping, ModelCheckpoint
 from sklearn.model_selection import train_test_split
+from scipy.stats import pearsonr
 from tqdm import tqdm
 
 from metrics import PearsonCallback
@@ -36,52 +38,85 @@ def model_parametrizer(architecture, param_grid, embedding_matrix):
       model.add(layer(*arg))
 
     model.add(Flatten())
+
 #    print(model.summary())
     yield model
 
-def grid_search(X, y, architecture_grid, parameter_grid, n_folds, corpus, embedding_matrix, model_dir):
-  for i in range(n_folds):
-    val_start = i * len(X) // n_folds
-    val_end = (i+1) * len(X) // n_folds
-    x_val = X[val_start:val_end]
-    y_val = y[val_start:val_end]
-#    bpdb.set_trace()
-    x_train = np.vstack([X[:val_start], X[val_end:]])
-    y_train = np.concatenate([y[:val_start], y[val_end:]])
+def grid_search(X, y, val_x, val_y, architecture_grid, parameter_grid, n_folds, corpus, embedding_matrix, model_dir):
+  best_score = 0 
+  scores = {}
 
-    for architecture in architecture_grid:
-      model_gen = model_parametrizer(architecture, parameter_grid, embedding_matrix)
-      for model in model_gen:
-        if '-reg-' in corpus:
-          model.add(Dense(1, activation='sigmoid'))
-        if '-oc-' in corpus:
-          model.add(Dense(1, activation='linear'))
-        if '-c-' in corpus:
-          model.add(Dense(11, activation='sigmoid'))
+  for architecture in architecture_grid:
+    model_gen = model_parametrizer(architecture, parameter_grid, embedding_matrix)
+    for model in model_gen:
+      if '-reg-' in corpus:
+        model.add(Dense(1, activation='sigmoid'))
+      if '-oc-' in corpus:
+        model.add(Dense(1, activation='linear'))
+      if '-c-' in corpus:
+        model.add(Dense(11, activation='sigmoid'))
 
-        if '-reg-' in corpus:
-          loss = 'mean_squared_error'
-        else:
-          loss = 'categorical_crossentropy'
+      if '-reg-' in corpus:
+        loss = 'mean_squared_error'
+      else:
+        loss = 'categorical_crossentropy'
 
-        early_stopping = EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=0, mode='auto')
-        checkpoint = ModelCheckpoint(filepath=os.path.join(model_dir, 'weights.hdf5'), verbose=0, save_best_only=True)
-        callbacks = [early_stopping, checkpoint]
-#        if '-reg-' in corpus:
-#          pearson = PearsonCallback()
-#          callbacks.append(pearson)
+      early_stopping = EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=0, mode='auto')
+      checkpoint = ModelCheckpoint(filepath=os.path.join(model_dir, 'weights.hdf5'), verbose=0, save_best_only=True)
+      callbacks = [early_stopping, checkpoint]
 
-        metrics = []
-        if '-oc-' in corpus:
-          metrics.append('acc')
+      metrics = []
+      if '-oc-' in corpus:
+        metrics.append('acc')
 
-        model.compile(loss=loss, optimizer='adam', metrics=metrics)
+      model.compile(loss=loss, optimizer='adam', metrics=metrics)
+
+      avg_score = 0
+      for i in range(n_folds):
+        val_start = i * len(X) // n_folds
+        val_end = (i+1) * len(X) // n_folds
+        x_val = X[val_start:val_end]
+        y_val = y[val_start:val_end]
+        x_train = np.vstack([X[:val_start], X[val_end:]])
+        y_train = np.concatenate([y[:val_start], y[val_end:]])
+
         model.fit(x_train, y_train, 
                   validation_data=(x_val, y_val),
                   epochs=300, 
                   batch_size=64,
                   callbacks=callbacks,
                   verbose=0)
+
+        n_params = int(np.sum([K.count_params(p) for p in set(model.trainable_weights)]))
+        y_pred = model.predict(val_x).reshape(1, -1)[0]
+        score = pearsonr(val_y, y_pred)[0]
+        avg_score += score
+
+      avg_score /= n_folds
+      print('avg:', avg_score)
+
+      if avg_score > best_score:
+        # finally, train on all data
+        model.fit(X, y, 
+                  validation_data=(val_x, val_y),
+                  epochs=300, 
+                  batch_size=64,
+                  callbacks=callbacks,
+                  verbose=0)
+        model.save(os.path.join(model_dir, 'best.hdf5'))
+        y_pred = model.predict(val_x).reshape(1, -1)[0]
+        score = pearsonr(val_y, y_pred)[0]
+        print(n_params)
+        print(score)
+
+      try:
+        if score > scores[n_params]:
+          scores[n_params] = score
+      except KeyError:
+        scores[n_params] = score
+
+  return scores
+
 
 def train(corpus_file, model_dir, embeddings, fresh_run=False, data_dir=None,
           epochs=3, batch_size=64, val_split=0.2):
@@ -111,28 +146,11 @@ def train(corpus_file, model_dir, embeddings, fresh_run=False, data_dir=None,
 
   x_train, x_val, y_train, y_val = train_test_split(
       sequences, labels, test_size=val_split, random_state=42)
-  print(x_train[0], y_train[0])
-  print(y_train.shape)
 
-  early_stopping = EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=0, mode='auto')
-  checkpoint = ModelCheckpoint(filepath=os.path.join(model_dir, 'weights.hdf5'), verbose=1, save_best_only=True)
-  callbacks = [early_stopping, checkpoint]
-
-  if '-reg-' in corpus_file:
-    pearson = PearsonCallback()
-    callbacks.append(pearson)
-
-  metrics = []
-  if '-oc-' in corpus_file:
-    metrics.append('acc')
-
-  if '-reg-' in corpus_file:
-    loss = 'mean_squared_error'
-  else:
-    loss = 'categorical_crossentropy'
-
-  grid_search(x_train, y_train, architectures, param_grid, 5, '-reg-', embedding_matrix, model_dir)
+  history = grid_search(x_train, y_train, x_val, y_val, architectures, param_grid, 5, '-reg-', embedding_matrix, model_dir)
  
+  with open('history.pickle', 'wb') as fout:
+    pickle.dump(fout)
 
 
 if __name__ == '__main__':
