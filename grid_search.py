@@ -150,7 +150,7 @@ def train(corpus_file, model_dir, embeddings, fresh_run=False, data_dir=None,
   history = grid_search(x_train, y_train, x_val, y_val, architectures, param_grid, 5, '-reg-', embedding_matrix, model_dir)
  
   with open('history.pickle', 'wb') as fout:
-    pickle.dump(fout)
+    pickle.dump(history, fout)
 
 
 if __name__ == '__main__':
