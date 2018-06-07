@@ -1,21 +1,87 @@
+import sys
 import os
+import itertools
 import argparse
 import pickle
 
 import bpdb
 import numpy as np
-import keras
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
 from keras.utils.np_utils import to_categorical
+from keras.models import Sequential
+from keras.layers import Embedding
+from keras.layers import Conv1D, Dense, Flatten, LSTM, Bidirectional
+from keras.layers import Dropout, BatchNormalization, GlobalMaxPool1D
 from keras.callbacks import EarlyStopping, ModelCheckpoint
 from sklearn.model_selection import train_test_split
+from tqdm import tqdm
 
-from data import prepare_word_index, get_data
-from data import prepare_embedding_index, prepare_embedding_matrix
-from models import get_model
 from metrics import PearsonCallback
+from data import prepare_word_index, get_data
+from models import create_embedding_layer
+from models import architectures, param_grid
 
+
+def model_parametrizer(architecture, param_grid, embedding_matrix):
+  args = []
+  for layer in architecture:
+    args.append(list(itertools.product(*param_grid[layer])))
+
+  all_args = list(itertools.product(*args))
+  for args in tqdm(all_args):
+    model = Sequential()
+    model.add(create_embedding_layer(embedding_matrix))
+    for layer, arg in zip(architecture, args):
+      model.add(layer(*arg))
+
+    model.add(Flatten())
+#    print(model.summary())
+    yield model
+
+def grid_search(X, y, architecture_grid, parameter_grid, n_folds, corpus, embedding_matrix, model_dir):
+  for i in range(n_folds):
+    val_start = i * len(X) // n_folds
+    val_end = (i+1) * len(X) // n_folds
+    x_val = X[val_start:val_end]
+    y_val = y[val_start:val_end]
+#    bpdb.set_trace()
+    x_train = np.vstack([X[:val_start], X[val_end:]])
+    y_train = np.concatenate([y[:val_start], y[val_end:]])
+
+    for architecture in architecture_grid:
+      model_gen = model_parametrizer(architecture, parameter_grid, embedding_matrix)
+      for model in model_gen:
+        if '-reg-' in corpus:
+          model.add(Dense(1, activation='sigmoid'))
+        if '-oc-' in corpus:
+          model.add(Dense(1, activation='linear'))
+        if '-c-' in corpus:
+          model.add(Dense(11, activation='sigmoid'))
+
+        if '-reg-' in corpus:
+          loss = 'mean_squared_error'
+        else:
+          loss = 'categorical_crossentropy'
+
+        early_stopping = EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=0, mode='auto')
+        checkpoint = ModelCheckpoint(filepath=os.path.join(model_dir, 'weights.hdf5'), verbose=0, save_best_only=True)
+        callbacks = [early_stopping, checkpoint]
+#        if '-reg-' in corpus:
+#          pearson = PearsonCallback()
+#          callbacks.append(pearson)
+
+        metrics = []
+        if '-oc-' in corpus:
+          metrics.append('acc')
+
+        model.compile(loss=loss, optimizer='adam', metrics=metrics)
+        model.fit(x_train, y_train, 
+                  validation_data=(x_val, y_val),
+                  epochs=300, 
+                  batch_size=64,
+                  callbacks=callbacks,
+                  verbose=0)
 
 def train(corpus_file, model_dir, embeddings, fresh_run=False, data_dir=None,
           epochs=3, batch_size=64, val_split=0.2):
@@ -65,16 +131,8 @@ def train(corpus_file, model_dir, embeddings, fresh_run=False, data_dir=None,
   else:
     loss = 'categorical_crossentropy'
 
-  rmsprop = keras.optimizers.RMSprop(lr=0.1, rho=0.9, epsilon=None, decay=0.0)
-  adam = keras.optimizers.Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=10e-9, decay=0.0, amsgrad=False)
-  model = get_model(model_dir, corpus_file, embedding_matrix)
-  model.compile(loss=loss, optimizer=adam, metrics=metrics)
-
-  model.fit(x_train, y_train, 
-            validation_data=(x_val, y_val),
-            epochs=epochs, 
-            batch_size=batch_size,
-            callbacks=callbacks)
+  grid_search(x_train, y_train, architectures, param_grid, 5, '-reg-', embedding_matrix, model_dir)
+ 
 
 
 if __name__ == '__main__':
