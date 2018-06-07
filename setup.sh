@@ -10,7 +10,6 @@ virtualenv -p python3 v
 source v/bin/activate
 pip install -r requirements.txt
 
-
 # Get GloVe embeddings.
 # **************************************************************** 
 mkdir glove && cd glove
@@ -18,6 +17,10 @@ wget 'http://nlp.stanford.edu/data/glove.twitter.27B.zip'
 unzip '*.zip' && rm *.zip
 cd ..
 
+# Get NRC emotion and sentiment lexicon
+# **************************************************************** 
+wget 'http://sentiment.nrc.ca/lexicons-for-research/NRC-Sentiment-Emotion-Lexicons.zip'
+unzip 'NRC-Sentiment-Emotion-Lexicons.zip' && rm 'NRC-Sentiment-Emotion-Lexicons.zip' 
 
 # Get datasets.
 # **************************************************************** 
