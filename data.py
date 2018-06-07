@@ -27,7 +27,7 @@ def get_data(data_file):
       if 'test' not in data_file:
         if '-reg-' in data_file: # float, e.g. 0.73
           label = float(label)
-        elif '-oc-' in data_file: # int to one hot, e.g. 3 -> [0, 0, 0, 1]
+        elif '-oc-' in data_file: # int, e.g. 2
           label = int(label.split(':')[0])
         elif '-c-' in data_file: # one hot multilabel, e.g. [1, 0, 1, 1, 0]
           label = [int(x) for x in fields[2:]]
