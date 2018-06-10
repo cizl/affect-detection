@@ -12,7 +12,7 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 
-\title{Making your deep neural network's life burden free}
+\title{Littlest teeniest tiniest supercharged deep learning model}
 
 \name{David Lozić, Luka Markušić} 
 
@@ -72,6 +72,8 @@ Their work was focused towards reaching the best results, as for our proposed mo
 \section{Resources}
 The dataset for all of the tasks was provided by SemEval itself \citep{mohammed-semeval}, both in English, Spanish and Arabic, our language of choice was English. Additional resources in form of word embeddigs and sentiment lexicons were provided by Stanford \citep{glove} and National Research Council in Canada \citep{nrcic}, respectively. 
 
+In order to stay in the mindset of trying to obtain a lightweight model, we've limited the word embeddings to 200 dimensional vectors, and only one sentiment lexicon will be used.
+
 
 \section{System Description}
 In this section we present how our system performs the grid search.
@@ -89,9 +91,11 @@ After this normalization step, the tweets are tokenized using the Keras tokenize
 The words from the preprocessing step are mapped to word embeddings
 and affect embeddings.
 For word embeddings, we use the GloVe word vectors \citep{glove} 
-which embed words into 200 dimensional vectors.
+which embed words into 200 dimensional vectors trained on the Twitter corpora,
+on 2B tweets in total.
 The affect embedding map words to the affect values which are
-extracted from the NRC affect lexicon \citep{mohammed-semeval}.
+extracted from the NRC affect lexicon \citep{mohammed-semeval}
+which were also trained on the Twitter corpora. The lexicon consists of 6000 words in total, out of each word may represent multiple emotions.
 These embeddings produce 4 dimensional word vectors where every
 dimension represents an affect intensity value for the following emotions: \textit{anger, fear, joy, sadness}.
 Finally, the two embeddings are concatenated into a single 204 dimension embedding.
@@ -135,8 +139,10 @@ The model has been trained using the Adam optimizer
 \section{Results}
 Our experimentation showed interesting results. 
 From the architecture and parameter grid, we chose 3 models for representation.
+
 The first model, which we dub the \textit{Minimal Convnet}, is as follows:
 \texttt{[Conv1D(2, 1), BatchNormalization, Dropout(0.25)]}.
+
 The second \textit{Small Convnet} is represented as: 
 \texttt{[Conv1D(10, 3), BatchNormalization, Dropout(0.5)]}, and the third 
 \textit{Best Convnet} as: 
