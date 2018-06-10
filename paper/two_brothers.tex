@@ -67,6 +67,59 @@ A substantial number of approaches rely greatly on an underlying sentiment lexic
 \section{Dataset/Resources}
 The dataset for all of the tasks was provided by \citep{mohammed-semeval} \emph{et al} (2018), both in English, Spanish and Arabic. Out of total 173236 samples, roughly 73\% is English, which is why the language of choice was English. Additional resources in form of word embeddigs and sentiment lexicons were provided by Stanford (GloVe) and National Research Council in Canada, respectively. 
 
+
+\section{System Description}
+In this section we present how our system performs the grid search.
+The system has been implemented using the Keras deep learning library \citep{chollet2015keras}.
+
+\subsection{Preprocessing}
+For text preprocessing, we use the tokenizer tool provided in the Keras library.
+The tweets are lowercased and the special characters and
+punctuations are removed.
+These characters include: %\textit{!"#\$%&()*+,-./:;<=>?@[\]^_`\{|\}~}.
+After this normalization step, the tweets are tokenized using the Keras tokenizer.
+
+\subsection{Input}
+The words from the preprocessing step are mapped to word embeddings
+and affect embeddings.
+For word embeddings, we use the GloVe word vectors \citep{glove} 
+which embed words into 200 dimensional vectors.
+The affect embedding map words to the affect values which are
+extracted from the NRC affect lexicon \citep{DBLP:journals/corr/abs-1802-09233}.
+These embeddings produce 4 dimensional word vectors where every
+dimension represents an affect intensity value for the following emotions: \textit{anger, fear, joy, sadness}.
+Finally, the two embeddings are concatenated into a single 204 dimension embedding.
+These embeddings represent the model input.
+
+\subsection{Architecture grid}
+The system performs hyperparameter search for all architectures
+given by the user. 
+An architecture is defined by a list of layers from which
+the model is built using the \textit{Sequential} Keras API.
+The system fills every layer of the architecture with
+arguments generated from the hyperparameter grid.
+The sequential list structure of architectures does not
+allow for more complex models with multiple inputs that can be
+compiled using the \textit{Functional} Keras API.
+But this was not our goal since we are searching for minimal models, 
+although the system could be easily modified to satisfy such a need.
+
+\subsection{Hyperparameter grid}
+To perform hyperparameter search, the user needs to define
+a list of possible values for chosen parameters of every type
+of layer which is present in the architecture.
+The system creates a cartesian product of hyperparameters
+which are used to fill the layers of the specified architecture.
+
+
+\subsection{Training}
+
+\section{Results}
+
+\section{Conclusion}
+
+
+
 \section*{Acknowledgements}
 
 If suitable, you can include the \textit{Acknowledgements} section before inserting the literature references  in order to thank those who helped you in any way to deliver the paper, but are not co-authors of the paper.
