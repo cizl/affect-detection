@@ -15,17 +15,20 @@ from metrics import PearsonCallback
 
 
 architectures = [
-  [Conv1D, Dropout],
+  [Conv1D, BatchNormalization, Dropout],
 #  [Conv1D, Dropout, Conv1D, Dropout]
 ]
 
 param_grid = {
-  Conv1D: [[10, 50, 100, 200, 400],
+  Conv1D: [[1, 2, 5, 10, 25, 50, 100, 200, 300, 400],
+#  Conv1D: [[100, 200, 300, 400],
            [1, 2, 3, 5],
+#           [2, 3, 5],
 #           ['relu'],
            ],
-#  Dropout: [[0, 0.2, 0.5, 0.8]],
-  Dropout: [[0, 0.5, 0.8]],
+#  Dropout: [[0.25]],
+  BatchNormalization: [],
+  Dropout: [[0, 0.25, 0.5, 0.75]],
 }
 
 def get_model(model_dir, corpus, embedding_matrix):
@@ -64,12 +67,15 @@ def create_embedding_layer(embedding_matrix):
 def get_cnn(embedding_matrix):
   model = Sequential()
   model.add(create_embedding_layer(embedding_matrix))
-  model.add(Conv1D(200, 3, activation='relu'))
+  model.add(Conv1D(50, 3, activation='relu'))
+#  model.add(Conv1D(100, 3, activation='relu'))
+#  model.add(Conv1D(1, 1, activation='relu'))
   model.add(BatchNormalization())
-  model.add(Dropout(0.8))
+  model.add(Dropout(0.5))
   #model.add(GlobalMaxPool1D())
   model.add(Flatten())
 
+  print(model.summary())
   return model
   
   
