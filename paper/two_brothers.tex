@@ -12,7 +12,8 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 
-\title{Making your deep neural network's life burden free}
+%\title{Making your deep neural network's life burden free}
+\title{Supercharged deep learning -- in pursuit of the tiniest model}
 
 \name{David Lozić, Luka Markušić} 
 
@@ -128,7 +129,10 @@ which are used to fill the layers of the specified architecture.
 
 
 \subsection{Training}
-The model has been trained using the Adam optimizer 
+The model has been trained using the Adam optimizer with the following values:
+\texttt{Adam(lr=0.001, beta1=0.9, beta2=0.999, epsilon=None, decay=0.0, amsgrad=False)}
+Since the dataset is small, the optimizer often does not converge for larger models.
+To combat this, we perform a variant of k-fold cross validation.
 
 % since dropout not parameter, optimal is shown
 
@@ -179,6 +183,25 @@ Random baseline & -0.018 & 0.024 & -0.058 & 0.020 \\
 
 
 \section{Conclusion}
+This work focused on finding the smallest viable model for the task of affect detection.
+To do this, we used the data provided in the first task of the SemEval 2018 competition.
+We created a basic framework for grid searching deep learning
+models and hyperparameters, and performed an extensive search in pursuit
+of the smallest model with acceptable performance.
+Our brave little models performed admirably in the face of great adversity.
+While they did not match the giants at the very top of the leaderboards, 
+they did prove to be competitive in their own right.
+
+In future work, it would be wise to find a richer sentiment lexicon
+than the affect lexicon we used. 
+Despite our initial hopes, the semantic lexicon more often than not failed 
+to offer values for given tokens since many of them were not a part of the 
+relatively small vocabulary. None the less, it doesn't add a lot of overhead, 
+and we believe that it would improve the model significantly.
+%While the lexicon is well structured for our needs, 
+%the percentage of matched words is very low, and we believe
+%that would improve the model significanlty with little overhead.
+
 
 
 
