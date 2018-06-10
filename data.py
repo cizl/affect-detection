@@ -11,7 +11,7 @@ from tqdm import tqdm, trange
 #from keras.preprocessing.text import pad_sequences
 
 
-def get_data(data_file):
+def get_data(data_file, return_keys=False):
   keys = []
   tweets = []
   labels = []
@@ -32,11 +32,14 @@ def get_data(data_file):
         elif '-c-' in data_file: # one hot multilabel, e.g. [1, 0, 1, 1, 0]
           label = [int(x) for x in fields[2:]]
 
+      keys.append(key)
       tweets.append(tweet)
       labels.append(label)
 
 #  if '-oc-' in data_file:
 #    labels = to_categorical(labels)
+  if return_keys:
+    return np.array(keys), np.array(tweets), np.array(labels)
 
   return np.array(tweets), np.array(labels)
 
@@ -107,6 +110,79 @@ def prepare_embedding_matrix(word_index, embedding_index):
         'words from the corpus to their embedding vectors')
 
   return embedding_matrix
+
+def prepare_affect_index(affect_lexicon):
+  mapping = {'anger': 0, 'fear': 1, 'joy': 2, 'sadness': 3}
+  avgs = {}
+
+  print('Preparing affect lexicon index..')
+  with open(affect_lexicon, 'r') as fin:
+    # count lines for tqdm progress bar
+    next(fin)
+    total = 0
+    for line in fin:
+      values = line.split()
+      intensity = float(values[1])
+      affect = values[2]
+      try:
+        avgs[affect].append(intensity)
+      except KeyError:
+        avgs[affect] = [intensity]
+
+      total += 1
+  
+  for affect, intensities in avgs.items():
+    avgs[affect] = np.mean(intensities)
+  print('Average intensities:', avgs)
+
+  avg_vector = [0 for _ in mapping.keys()]
+  for affect, ind in mapping.items():
+    avg_vector[ind] = avgs[affect]
+  avg_vector = np.asarray(avg_vector)
+  avg_vector = np.zeros(len(mapping))
+
+  affect_index = {}
+  with tqdm(total=total) as pbar:
+    with open(affect_lexicon, 'r') as fin:
+      next(fin)
+      for line in fin:
+        values = line.split()
+        word = values[0]
+        if not word in affect_index:
+#          affect_index[word] = avg_vector
+          affect_index[word] = np.zeros(len(mapping))
+        intensity = float(values[1])
+        affect = values[2]
+        affect_index[word][mapping[affect]] = intensity
+        pbar.update(1)
+
+  with open('affect_index.pickle', 'wb') as fout:
+    pickle.dump(affect_index, fout)
+
+  return affect_index
+
+
+def prepare_affect_matrix(word_index, affect_index):
+  print('Preparing affect matrix..')
+  total = 0
+  hits = 0
+  emb_dim = len(list(affect_index.values())[0])
+  affect_matrix = np.zeros((len(word_index) + 1, emb_dim))
+  for word, index in tqdm(word_index.items()):
+    affect = affect_index.get(word)
+    if affect is not None:
+      affect_matrix[index] = affect
+#      print(word, affect)
+      hits += 1
+    total += 1
+
+  with open('affect_matrix.pickle', 'wb') as fout:
+    pickle.dump(affect_matrix, fout)
+
+  print('Matched', hits, 'out of ', total,
+        'words from the corpus to their affect vectors.')
+
+  return affect_matrix
 
 
 if __name__ == '__main__':
