@@ -65,7 +65,7 @@ it does not undermine the problematic task that is affect detection.
 A substantial number of approaches rely greatly on an underlying sentiment lexicon which, while being one of the most robust, is one of the most time-consuming methods. The trend regarding models based on word embeddings introduced by Mikhail et al. has no inclination of slowing down. 
 
 \section{Dataset/Resources}
-The dataset for all of the tasks was provided by \citep{mohammed-semeval} \emph{et al} (2018), both in English, Spanish and Arabic. Out of total 173236 samples, roughly 73\% is English, which is why the language of choice was English. Additional resources in form of word embeddigs and sentiment lexicons were provided by Stanford (GloVe) and National Research Council in Canada, respectively. 
+The dataset for all of the tasks was provided by \citep{mohammed-semeval} \emph{et al} (2018), both in English, Spanish and Arabic. Out of total 173236 samples, roughly 73\% is English, which is why the language of choice was English. Additional resources in form of word embeddigs and sentiment lexicons were provided by Stanford \citep{glove} and National Research Council in Canada \citep{nrcic}, respectively. 
 
 
 \section{System Description}
@@ -85,7 +85,7 @@ and affect embeddings.
 For word embeddings, we use the GloVe word vectors \citep{glove} 
 which embed words into 200 dimensional vectors.
 The affect embedding map words to the affect values which are
-extracted from the NRC affect lexicon \citep{DBLP:journals/corr/abs-1802-09233}.
+extracted from the NRC affect lexicon \citep{mohammed-semeval}.
 These embeddings produce 4 dimensional word vectors where every
 dimension represents an affect intensity value for the following emotions: \textit{anger, fear, joy, sadness}.
 Finally, the two embeddings are concatenated into a single 204 dimension embedding.
@@ -115,6 +115,20 @@ which are used to fill the layers of the specified architecture.
 \subsection{Training}
 
 \section{Results}
+
+\begin{table}
+\caption{Caption}
+\label{tab:narrow-table}
+\begin{center}
+\begin{tabular}{lllll}
+\toprule
+& joy & anger & fear & sadness \\
+\midrule
+CountVect & -0.165 & 0.059 & 0.102 & 0.301 \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{table}
 
 \section{Conclusion}
 
