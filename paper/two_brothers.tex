@@ -26,7 +26,13 @@ Unska 3, 10000 Zagreb, Croatia\\
           
          
 \abstract{ 
-This document provides the instructions on formatting the TAR system description paper in \LaTeX{}. This is where you write the abstract (i.e., summary) of the work you carried out within the project. The abstract is a paragraph of text ranging between 70 and 150 words.
+  This paper describes the system we used to find a lightweigt
+  model which offers acceptable results with fast performance.
+  To do this we constructed a basic grid search framework which
+  was trained on English version of the 2018 SemEval Task 1 
+  Emotion Intensity Regression dataset.
+  Our system was evaluated on the official competition test set,
+  and performed surprisingly well given it's small size.
 }
 
 \begin{document}
@@ -139,7 +145,6 @@ The model has been trained using the Adam optimizer with the following values:
 Since the dataset is small, the optimizer often does not converge for larger models.
 To combat this, we perform a variant of k-fold cross validation.
 
-% since dropout not parameter, optimal is shown
 
 \section{Results}
 Our experimentation showed interesting results. 
