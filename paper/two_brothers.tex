@@ -111,20 +111,33 @@ of layer which is present in the architecture.
 The system creates a cartesian product of hyperparameters
 which are used to fill the layers of the specified architecture.
 
+\begin{figure}
+\begin{center}
+\includegraphics[width=0.7\columnwidth]{images/architecture.pdf}
+\caption{Model pipeline with an example architecture.}
+\label{fig:figure1}
+\end{center}
+\end{figure}
+
 
 \subsection{Training}
 
 \section{Results}
 
 \begin{table}
-\caption{Caption}
+\caption{Task 1.a results (emotion intensity regression)}
 \label{tab:narrow-table}
 \begin{center}
 \begin{tabular}{lllll}
 \toprule
 & joy & anger & fear & sadness \\
 \midrule
-CountVect & -0.165 & 0.059 & 0.102 & 0.301 \\
+EiTAKA    & 0.723  & 0.704 & 0.715 & 0.731 \\
+Best Convnet & & & & \\
+Small Convnet & 0.627 & 0.603 & 0.612 & 0.621 \\
+SVM unigrams baseline & 0.526 & 0.525 & 0.575 & 0.453 \\
+Random baseline & -0.018 & 0.024 & -0.058 & 0.020 \\
+
 \bottomrule
 \end{tabular}
 \end{center}
