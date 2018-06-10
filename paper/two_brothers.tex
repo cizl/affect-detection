@@ -96,6 +96,7 @@ The system performs hyperparameter search for all architectures
 given by the user. 
 An architecture is defined by a list of layers from which
 the model is built using the \textit{Sequential} Keras API.
+En example architecture can be seen in Figure 1.
 The system fills every layer of the architecture with
 arguments generated from the hyperparameter grid.
 The sequential list structure of architectures does not
@@ -121,8 +122,35 @@ which are used to fill the layers of the specified architecture.
 
 
 \subsection{Training}
+The model has been trained using the Adam optimizer 
+
+% since dropout not parameter, optimal is shown
 
 \section{Results}
+Our experimentation showed interesting results. 
+From the architecture and parameter grid, we chose 3 models for representation.
+The first model, which we dub the \textit{Minimal Convnet}, is as follows:
+\texttt{[Conv1D(2, 1), BatchNormalization, Dropout(0.25)]}.
+The second \textit{Small Convnet} is represented as: 
+\texttt{[Conv1D(10, 3), BatchNormalization, Dropout(0.5)]}, and the third 
+\textit{Best Convnet} as: 
+\texttt{[Conv1D(100, 3), BatchNormalization, Dropout(0.75)]}.
+The results are presented in Table 1.
+Surprisingly, the Minimal Convnet with its measly two filters 
+and kernel size 1 holds up admirably, scoring
+better results than the SVM baseline, but falling far behind the 
+previous work.
+The Small Convnet is our model of choice, which achieves solid 
+performance while maintaining a very small architecture.
+This size of convolutional network seems to be the sweet spot in our testing.
+Further increasing the model size only leads to worse performance and 
+harder training.
+Although this model still falls behind the EiTAKA considerably, their
+implementation uses multiple word embeddings, multiple semantic lexicons,
+a much larger convolutional model with multiple channels combined with an
+XGBoost regressor into an ensemble.
+In the face of adversity, our Small Convnet holds its own.
+
 
 \begin{table}
 \caption{Task 1.a results (emotion intensity regression)}
@@ -133,8 +161,9 @@ which are used to fill the layers of the specified architecture.
 & joy & anger & fear & sadness \\
 \midrule
 EiTAKA    & 0.723  & 0.704 & 0.715 & 0.731 \\
-Best Convnet & & & & \\
+Best Convnet & 0.634 & 0.605 & 0.611 & 0.627 \\
 Small Convnet & 0.627 & 0.603 & 0.612 & 0.621 \\
+Minimal Convnet & 0.587 & 0.573 & 0.569 & 0.591 \\
 SVM unigrams baseline & 0.526 & 0.525 & 0.575 & 0.453 \\
 Random baseline & -0.018 & 0.024 & -0.058 & 0.020 \\
 
@@ -143,7 +172,9 @@ Random baseline & -0.018 & 0.024 & -0.058 & 0.020 \\
 \end{center}
 \end{table}
 
+
 \section{Conclusion}
+
 
 
 
