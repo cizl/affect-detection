@@ -26,8 +26,8 @@ Unska 3, 10000 Zagreb, Croatia\\
           
          
 \abstract{ 
-  This paper describes the system we used to find a lightweigt
-  model which offers acceptable results with fast performance.
+  This paper describes the system we used to find a lightweight
+  deep learning model which offers acceptable results with fast performance.
   To do this we constructed a basic grid search framework which
   was trained on English version of the 2018 SemEval Task 1 
   Emotion Intensity Regression dataset.
@@ -43,8 +43,10 @@ Unska 3, 10000 Zagreb, Croatia\\
 
 Sentiment analysis might be more commonly known by its flashier and broader title, \textit{opinion mining}. 
 Generally speaking, the task of sentiment analysis is to identify and categorize the writer's feelings and/or opinions into several categories. 
-It has become critical for companies to see how customer's opinions change with the passage of time and trends. 
-In the academia, the very popular SemEval series hosts many sentiment analysis competitions annually, with many different subtasks.
+It has become critical for companies to see how customer's opinions change
+with the passage of time and trends, and in the academia,
+the very popular SemEval series hosts many sentiment analysis competitions annually,
+with many different subtasks.
 
 In recent years, the trend seems to follow deep learning models,
 as they often occupy the top positions on the leaderboards.
@@ -75,12 +77,12 @@ A substantial number of approaches rely greatly on an underlying sentiment lexic
 \textbf{V-oc:} given a tweet, classify it into one of seven ordinal classes.
 
 
-Their work was focused towards reaching the best results, as for our proposed model builds upon their work, trying to strip down all the unnecessary material while preserving performance.
+Their work was focused towards reaching the best results, as for our proposed model builds upon their work, trying to strip down all the seemingly unnecessary material while preserving performance.
 
 \section{Resources}
-The dataset for all of the tasks was provided by SemEval itself \citep{mohammed-semeval}, both in English, Spanish and Arabic, our language of choice was English. Additional resources in form of word embeddings and sentiment lexicons were provided by Stanford \citep{glove} and National Research Council in Canada \citep{nrcic}, respectively. 
+The dataset for all of the tasks was provided by SemEval itself, both in English, Spanish and Arabic, however our language of choice was English. Additional resources in form of word embeddings and sentiment lexicons were provided by Stanford \citep{glove} and National Research Council in Canada \citep{nrcic}, respectively. 
 
-In order to stay in the mindset of trying to obtain a lightweight model, we've limited the word embeddings to 200-dimensional vectors, and only one sentiment lexicon will be used.
+In order to stay in the mindset of trying to obtain a lightweight model, we have limited the word embeddings to 200-dimensional vectors, and only one sentiment lexicon will be used.
 
 
 \section{System Description}
@@ -103,7 +105,7 @@ which embed words into 200-dimensional vectors trained on the Twitter corpora,
 on 2B tweets in total.
 The affect embedding map words to the affect values which are
 extracted from the NRC affect lexicon \citep{mohammed-semeval}
-which were also trained on the Twitter corpora. The lexicon consists of 6000 words in total, out of each word may represent multiple emotions.
+which were also trained on the Twitter corpora. The lexicon consists of 6000 words in total, and each word may represent multiple emotions.
 These embeddings produce 4-dimensional word vectors where every
 dimension represents an affect intensity value for the following emotions: \textit{anger, fear, joy, sadness}.
 Finally, the two embeddings are concatenated into a single 204 dimension embedding.
@@ -175,7 +177,7 @@ In the face of adversity, our Small ConvNet holds its own.
 
 
 \begin{table}
-\caption{Task 1.a results (emotion intensity regression)}
+\caption{Task 1.a results (emotion intensity regression), Pearson coefficient}
 \label{tab:narrow-table}
 \begin{center}
 \begin{tabular}{lllll}
@@ -213,9 +215,6 @@ and we believe that it would improve the model significantly.
 %While the lexicon is well structured for our needs, 
 %the percentage of matched words is very low, and we believe
 %that would improve the model significantly with little overhead.
-
-
-
 
 \bibliographystyle{tar2018}
 \bibliography{tar2018} 
