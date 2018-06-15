@@ -64,4 +64,46 @@
     \includegraphics[width=\textwidth]{architecture.png}
 \end{frame}
 
+\section{Our crack at it}
+\begin{frame}{Grid search}
+    \begin{itemize}
+        \item architecture grid
+        \item hyperparameter grid
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{The Golden Goose}
+    \includegraphics[height=\textheight]{architecture.pdf}
+\end{frame}
+
+\section{Results}
+
+
+\begin{frame}{How did we do?}
+\begin{table}
+\caption{Task 1.a results (emotion intensity regression), Pearson coefficient}
+\label{tab:narrow-table}
+\begin{center}
+\begin{tabular}{lllll}
+\toprule
+& joy & anger & fear & sadness \\
+\midrule
+EiTAKA    & 0.723  & 0.704 & 0.715 & 0.731 \\
+Best Convnet & 0.634 & 0.605 & 0.611 & 0.627 \\
+Small Convnet & 0.627 & 0.603 & 0.612 & 0.621 \\
+Minimal Convnet & 0.587 & 0.573 & 0.569 & 0.591 \\
+SVM unigrams baseline & 0.526 & 0.525 & 0.575 & 0.453 \\
+Random baseline & -0.018 & 0.024 & -0.058 & 0.020 \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{table}
+
+
+\end{frame}
+
+\begin{frame}[standout]
+    Questions?
+\end{frame}
 \end{document}
+
